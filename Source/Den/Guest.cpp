@@ -8,6 +8,8 @@ AGuest::AGuest()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+
+	Wallet = 100.0f;
 }
 
 // Called when the game starts or when spawned
@@ -34,5 +36,26 @@ void AGuest::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 UBehaviorTree * AGuest::GetBehavior()
 {
 	return Behavior;
+}
+
+float AGuest::GetWallet()
+{
+	return Wallet;
+}
+
+bool AGuest::CanPay(float Cost)
+{
+	return (Wallet - Cost) >= 0;
+}
+
+bool AGuest::Pay(float Cost)
+{
+	float remain = Wallet - Cost;
+	if (remain >= 0) {
+		Wallet = remain;
+		WalletAmountChanged();
+		return true;
+	}
+	return false;
 }
 

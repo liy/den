@@ -7,6 +7,7 @@
 #include "GuestAIController.generated.h"
 
 class AWaypoint;
+class UBlackboardComponent;
 
 /**
  * 
@@ -29,6 +30,12 @@ public:
 	UFUNCTION(Blueprintpure, Category = "Waypoint")
 	AWaypoint* GetPrviousWaypoint();
 
+	UFUNCTION(Blueprintpure, Category = "Control")
+	bool CanPay(float Cost);
+
+	UFUNCTION(BlueprintCallable, Category = "Control")
+	bool MakePayment(float Cost);
+
 	virtual void Possess(APawn* InPawn) override;
 
 	// For behaviour tree
@@ -38,10 +45,7 @@ private:
 	TArray<AWaypoint*> Waypoints;
 
 protected:
-	UPROPERTY(transient)
-	class UBlackboardComponent* BlackboardComp;
-
-	UPROPERTY(transient)
+	UPROPERTY(BlueprintReadOnly, Category = AI, meta = (AllowPrivateAccess = "true"))
 	class UBehaviorTreeComponent* BehaviorComp;
 
 	AWaypoint* TargetWaypoint;

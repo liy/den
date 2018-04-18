@@ -23,6 +23,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "AI")
 	class UBehaviorTree* Behavior;
 
+	UPROPERTY(EditAnywhere, Category = "Stuff")
+	float Wallet;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void WalletAmountChanged();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -32,4 +38,10 @@ public:
 
 	UBehaviorTree* GetBehavior();
 	
+	UFUNCTION(BlueprintPure, Category = "Stuff")
+	float GetWallet();
+
+	bool CanPay(float Cost);
+
+	bool Pay(float Cost);
 };

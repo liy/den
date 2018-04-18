@@ -7,12 +7,13 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "Guest.h"
+#include "DenGameState.h"
 #include "Waypoint.h"
 
 AGuestAIController::AGuestAIController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UCrowdFollowingComponent>(TEXT("PathFollowingComponent")))
 {
-	BlackboardComp = CreateDefaultSubobject<UBlackboardComponent>(TEXT("Blackboard component"));
+	Blackboard = CreateDefaultSubobject<UBlackboardComponent>(TEXT("Blackboard"));
 	BehaviorComp = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("Behavior component"));
 }
 
@@ -31,7 +32,6 @@ void AGuestAIController::BeginPlay()
 	TargetWaypoint = Waypoints[0];
 }
 
-
 void AGuestAIController::Possess(APawn* InPawn)
 {
 	Super::Possess(InPawn);
@@ -40,9 +40,9 @@ void AGuestAIController::Possess(APawn* InPawn)
 	if (guest) {
 		UBehaviorTree* behavior = guest->GetBehavior();
 		if (behavior) {
-			BlackboardComp->InitializeBlackboard(*(behavior->BlackboardAsset));
+			Blackboard->InitializeBlackboard(*(behavior->BlackboardAsset));
 			// Grab key id
-			TargetLocationKeyID = BlackboardComp->GetKeyID("TargetLocation");
+			TargetLocationKeyID = Blackboard->GetKeyID("TargetLocation");
 			BehaviorComp->StartTree(*behavior);
 		}
 	}
@@ -67,4 +67,23 @@ AWaypoint* AGuestAIController::GetTargetWaypoint()
 AWaypoint* AGuestAIController::GetPrviousWaypoint()
 {
 	return PreviousWaypoint;
+}
+
+bool AGuestAIController::MakePayment(float Cost)
+{
+	AGuest* guest = Cast<AGuest>(GetPawn());
+	if (guest && guest->Pay(Cost)) {
+		GetWorld()->GetGameState<ADenGameState>()->PayIn(Cost);
+		return true;
+	}
+	return false;
+}
+
+bool AGuestAIController::CanPay(float Cost)
+{
+	AGuest* guest = Cast<AGuest>(GetPawn());
+	if (guest) {
+		return guest->CanPay(Cost);
+	}
+	return false;
 }
